@@ -1,11 +1,22 @@
-import React from 'react';
-import { SECTIONS } from '../data/sections';
-import { TrackCard } from '../components/TrackCard';
+import React, { useState, useEffect } from 'react';
+import { SECTIONS, PRIORITY_COLOR } from '../data/sections';
 import { ProgressBar } from '../components/ProgressBar';
+import { StatusBadge, PriorityTag } from '../components/StatusBadge';
+import { SubtopicList } from '../components/SubtopicList';
+import { RevisionList } from '../components/RevisionList';
 
 export default function RoadmapPage({ activeSection, state, setState }) {
   const section = SECTIONS.find(s => s.id === activeSection) || SECTIONS[0];
-  const { checks, revChecks, statuses } = state;
+  const { checks, revChecks, statuses, notes = {} } = state;
+  
+  const [activeTrackId, setActiveTrackId] = useState(section.tracks[0]?.id);
+
+  // Reset active track when section changes
+  useEffect(() => {
+    setActiveTrackId(section.tracks[0]?.id);
+  }, [section.id]);
+
+  const activeTrack = section.tracks.find(t => t.id === activeTrackId) || section.tracks[0];
 
   const onStatusCycle = (trackId) => {
     const orders = ['available', 'in_progress', 'done', 'locked'];
@@ -31,6 +42,14 @@ export default function RoadmapPage({ activeSection, state, setState }) {
     }));
   };
 
+  const onNotesChange = (e) => {
+    const val = e.target.value;
+    setState(prev => ({
+      ...prev,
+      notes: { ...(prev.notes || {}), [activeTrackId]: val }
+    }));
+  };
+
   // Calculate section progress
   const totalSub = section.tracks.reduce((acc, t) => acc + t.sub.length, 0);
   const doneSub = section.tracks.reduce((acc, t) => 
@@ -40,7 +59,6 @@ export default function RoadmapPage({ activeSection, state, setState }) {
 
   return (
     <div className="fade-in">
-
       <div className="section-hero" style={{ borderColor: `${section.accent}30`, background: `${section.accent}08` }}>
         <div className="hero-icon">{section.icon}</div>
         <div style={{ position: 'relative', zIndex: 1 }}>
@@ -52,8 +70,8 @@ export default function RoadmapPage({ activeSection, state, setState }) {
             {section.level}
           </p>
           
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: '200px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
                 <span className="mono-label-sm">Overall Progress</span>
                 <span className="mono-label-sm" style={{ color: section.accent }}>{progress}%</span>
@@ -70,21 +88,90 @@ export default function RoadmapPage({ activeSection, state, setState }) {
         </div>
       </div>
 
-      <div className="track-grid">
-        {section.tracks.map((track, i) => (
-          <TrackCard
-            key={track.id}
-            index={i}
-            track={track}
-            checks={checks}
-            revChecks={revChecks}
-            status={statuses[track.id]}
-            onStatusCycle={onStatusCycle}
-            onCheckToggle={onCheckToggle}
-            onRevToggle={onRevToggle}
-            accent={section.accent}
-          />
-        ))}
+      <div className="roadmap-split-layout">
+        <div className="roadmap-side-render">
+          {section.tracks.map((track, i) => {
+            const isActive = activeTrackId === track.id;
+            const isLocked = statuses[track.id] === 'locked';
+            const priorityColor = PRIORITY_COLOR[track.priority] || 'var(--border)';
+            
+            return (
+              <button 
+                key={track.id}
+                className={`track-btn ${isActive ? 'active' : ''} ${isLocked ? 'locked' : ''}`}
+                onClick={() => setActiveTrackId(track.id)}
+                style={isActive ? { borderLeft: `3px solid ${section.accent}` } : { borderLeft: `3px solid transparent` }}
+              >
+                <div className="track-btn-top">
+                  <span className="track-btn-title">{track.title}</span>
+                  <StatusBadge trackId={track.id} status={statuses[track.id]} onCycle={onStatusCycle} />
+                </div>
+                <div className="track-btn-sub">
+                  Est: {track.est} • <span style={{ color: priorityColor, fontWeight: 'bold' }}>{track.priority}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        
+        <div className="roadmap-main-render fade-in" key={activeTrackId}>
+          {activeTrack && (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                <div>
+                  <PriorityTag priority={activeTrack.priority} />
+                  <h3 style={{ fontSize: '20px', fontWeight: '800', color: 'var(--text-primary)', marginTop: '8px' }}>
+                    {activeTrack.title}
+                  </h3>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{activeTrack.pw}</p>
+                </div>
+                <StatusBadge trackId={activeTrack.id} status={statuses[activeTrack.id]} onCycle={onStatusCycle} />
+              </div>
+
+              <div style={{ marginBottom: '24px' }}>
+                <SubtopicList 
+                  track={activeTrack} 
+                  checks={checks} 
+                  onToggle={onCheckToggle} 
+                  accent={section.accent} 
+                />
+              </div>
+
+              {activeTrack.res && activeTrack.res.length > 0 && (
+                <div style={{ marginBottom: '24px', borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                  <div className="mono-label-sm" style={{ marginBottom: '12px' }}>Resources</div>
+                  {activeTrack.res.map((r, i) => (
+                    <div key={i} className="resource-link" style={{ borderLeftColor: section.accent }}>
+                      {r}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div style={{ marginBottom: '24px' }}>
+                <RevisionList 
+                  track={activeTrack} 
+                  revChecks={revChecks} 
+                  onToggle={onRevToggle} 
+                  accent={section.accent} 
+                />
+              </div>
+
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '16px' }}>
+                <div className="mono-label-sm" style={{ marginBottom: '8px', color: section.accent }}>
+                  {activeTrack.title.toUpperCase()} NOTES
+                </div>
+                <textarea
+                  className="input"
+                  placeholder={`Add your notes, insights, and shortcuts for ${activeTrack.title}...`}
+                  value={notes[activeTrack.id] || ''}
+                  onChange={onNotesChange}
+                  style={{ minHeight: '180px' }}
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

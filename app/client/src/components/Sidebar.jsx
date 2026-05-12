@@ -43,11 +43,11 @@ export function Sidebar({ activeTab, onTabChange, accentMap }) {
       
       <nav className="sidebar-nav" style={{ overflowY: 'auto' }}>
         {NAV_GROUPS.map((group, i) => (
-          <div key={i} style={{ marginBottom: '24px' }}>
-            <div className="mono-label-sm" style={{ padding: '0 16px', marginBottom: '8px' }}>
+          <div key={i} className="nav-group">
+            <div className="mono-label-sm nav-group-label" style={{ padding: '0 16px', marginBottom: '8px' }}>
               {group.label}
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div className="nav-items" style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               {group.items.map(tab => {
                 const isActive = activeTab === tab.id;
                 const tabAccent = accentMap[tab.id] || '#3b82f6';

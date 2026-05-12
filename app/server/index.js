@@ -18,7 +18,8 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 // MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mastery-tracker';
+const rawUri = process.env.MONGO_URI || 'mongodb://localhost:27017/mastery-tracker';
+const MONGO_URI = rawUri.trim().replace(/^["']|["']$/g, '');
 mongoose.connect(MONGO_URI)
   .then(() => console.log(`[${new Date().toLocaleTimeString()}] Connected to MongoDB`))
   .catch(err => console.error('MongoDB connection error:', err));
@@ -70,7 +71,7 @@ app.put('/api/state', async (req, res) => {
     const updatedState = await StateModel.findOneAndUpdate(
       { userId: 'default_user' },
       { $set: stateData },
-      { new: true, upsert: true }
+      { returnDocument: 'after', upsert: true }
     );
 
     console.log(`[${new Date().toLocaleTimeString()}] State saved to MongoDB`);
