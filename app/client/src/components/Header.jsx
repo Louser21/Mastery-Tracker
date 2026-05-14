@@ -2,6 +2,7 @@ import React from 'react';
 
 export function Header({ title, accent, saveStatus }) {
   const statusColor = saveStatus === 'saving' ? 'var(--status-progress)' : 
+                      saveStatus === 'unsaved' ? 'var(--priority-high)' :
                       saveStatus === 'error' ? 'var(--priority-critical)' : 'var(--status-done)';
 
   return (
@@ -17,7 +18,9 @@ export function Header({ title, accent, saveStatus }) {
           
           <div className={`save-indicator ${saveStatus}`}>
             <span className={`save-dot ${saveStatus}`} style={{ backgroundColor: statusColor }}></span>
-            {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'error' ? 'Save Error' : 'Changes Saved'}
+            {saveStatus === 'saving' ? 'Saving...' : 
+             saveStatus === 'error' ? 'Save Error' : 
+             saveStatus === 'unsaved' ? 'Unsaved (Ctrl+S)' : 'Changes Saved'}
           </div>
         </div>
       </div>
