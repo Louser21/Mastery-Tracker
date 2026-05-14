@@ -6,9 +6,7 @@ import { Sidebar } from './components/Sidebar';
 import { FloatingLegend } from './components/FloatingLegend';
 import Home from './pages/Home';
 import RoadmapPage from './pages/RoadmapPage';
-import DailyPage from './pages/DailyPage';
-import WeeklyPage from './pages/WeeklyPage';
-import MonthlyPage from './pages/MonthlyPage';
+import CalendarPage from './pages/CalendarPage';
 import GradesPage from './pages/GradesPage';
 import NotesPage from './pages/NotesPage';
 
@@ -25,9 +23,7 @@ export function App() {
     cp: '#f59e0b', // Amber
     webdev: '#8b5cf6', // Violet
     placement: '#ef4444', // Red
-    daily: '#f97316', // Orange
-    weekly: '#d946ef', // Fuchsia
-    monthly: '#ef4444', // Red
+    calendar: '#f97316', // Orange
     grades: '#34d399', // Emerald light
     notes: '#64748b', // Slate
   };
@@ -43,12 +39,8 @@ export function App() {
       case 'placement':
         // The activeTab directly maps to the activeSection in RoadmapPage!
         return <RoadmapPage activeSection={activeTab} state={state} setState={setState} />;
-      case 'daily':
-        return <DailyPage state={state} setState={setState} />;
-      case 'weekly':
-        return <WeeklyPage state={state} setState={setState} />;
-      case 'monthly':
-        return <MonthlyPage state={state} setState={setState} />;
+      case 'calendar':
+        return <CalendarPage state={state} setState={setState} />;
       case 'grades':
         return <GradesPage state={state} setState={setState} />;
       case 'notes':

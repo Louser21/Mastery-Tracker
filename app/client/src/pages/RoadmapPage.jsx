@@ -29,17 +29,42 @@ export default function RoadmapPage({ activeSection, state, setState }) {
   };
 
   const onCheckToggle = (id) => {
-    setState(prev => ({
-      ...prev,
-      checks: { ...prev.checks, [id]: !prev.checks[id] }
-    }));
+    setState(prev => {
+      const isChecking = !prev.checks[id];
+      const newCompletionDates = { ...(prev.completionDates || {}) };
+      if (isChecking) {
+        const d = new Date();
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        newCompletionDates[id] = d.toISOString().split('T')[0];
+      } else {
+        delete newCompletionDates[id];
+      }
+      return {
+        ...prev,
+        checks: { ...prev.checks, [id]: isChecking },
+        completionDates: newCompletionDates
+      };
+    });
   };
 
   const onRevToggle = (id) => {
-    setState(prev => ({
-      ...prev,
-      revChecks: { ...prev.revChecks, [id]: !prev.revChecks[id] }
-    }));
+    setState(prev => {
+      const isChecking = !prev.revChecks[id];
+      const revId = `rev-${id}`;
+      const newCompletionDates = { ...(prev.completionDates || {}) };
+      if (isChecking) {
+        const d = new Date();
+        d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+        newCompletionDates[revId] = d.toISOString().split('T')[0];
+      } else {
+        delete newCompletionDates[revId];
+      }
+      return {
+        ...prev,
+        revChecks: { ...prev.revChecks, [id]: isChecking },
+        completionDates: newCompletionDates
+      };
+    });
   };
 
   const onNotesChange = (e) => {

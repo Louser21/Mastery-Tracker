@@ -31,11 +31,9 @@ const StateSchema = new mongoose.Schema({
   revChecks: Object,
   statuses: Object,
   notes: Object,
-  dailyTasks: Array,
-  weeklyGoals: Array,
-  monthlyGoals: Array,
+  completionDates: Object,
+  calendarData: Object,
   gradeLog: Array,
-  dailyMetrics: Object,
   _savedAt: { type: Date, default: Date.now }
 }, { minimize: false }); // minimize: false ensures empty objects {} are saved
 

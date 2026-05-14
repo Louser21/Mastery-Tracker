@@ -19,9 +19,7 @@ const NAV_GROUPS = [
   {
     label: "Execution",
     items: [
-      { id: "daily", label: "Daily Tasks", icon: "📝" },
-      { id: "weekly", label: "Weekly Goals", icon: "🎯" },
-      { id: "monthly", label: "Monthly Targets", icon: "🔭" },
+      { id: "calendar", label: "Calendar", icon: "📅" },
     ]
   },
   {
